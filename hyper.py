@@ -48,7 +48,7 @@ def oblique_limit(x,y):
 	p1 = x[3]
 	T1 = x[4]
 	y = x[5]
-	B = pi*oblang/180 #converting the shock wave angle from degrees to radians
+	B = pi*y/180 #converting the shock wave angle from degrees to radians
 	
 
 	P2 = P1 * ( (2 * y / (y + 1) ) * M1 * (sin(B)**2) )
