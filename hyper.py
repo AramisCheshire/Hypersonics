@@ -39,15 +39,15 @@ def oblique(prop,oblang):
 	return [[u,v,w],a,P2,p2,T2,y]
 
 
-def oblique_limit(a,y):
+def oblique_limit(x,y):
 #this function takes a list as an argument and adds 5 to the 1st element of that list
-	v1 = prop[0][0] #reading V1 from V inside of flow1
-	a = prop[1]
-	M1 = V1/a
-	P1 = prop[2]
-	p1 = prop[3]
-	T1 = prop[4]
-	y = prop[5]
+	v1 = x[0][0] #reading V1 from V inside of flow1
+	a = x[1]
+	M1 = v1/a
+	P1 = x[2]
+	p1 = x[3]
+	T1 = x[4]
+	y = x[5]
 	B = pi*oblang/180 #converting the shock wave angle from degrees to radians
 	
 
