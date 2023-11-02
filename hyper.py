@@ -35,6 +35,36 @@ def oblique(prop,oblang): #this function applies the exact oblique shock equatio
 	print(v2)
 	checkV = pow(u2**2 + v2**2,0.5)
 	print(checkV)
+
+
+def oblique_third(a,y):
+#this function takes a list as an argument and adds 5 to the 1st element of that list
+	M1 = prop[0]/prop[1]
+	a = prop[1]
+	V1 = prop[0]
+	P1 = prop[2]
+	p1 = prop[3]
+	T1 = prop[4]
+	y = prop[5]
+	B = math.pi*oblang/180
+
+###################################################
+
+	P2 = P1 * ( (2 * y / (y + 1) ) * M1 * (sin(B)**2) )
+
+	p2 = p1 * ( y + 1 / y - 1 )
+
+	T2 = T1 * ( 2*y * (y - 1) / ((y + 1)**2) * (M1**2)* (sin(B)**2) )
+
+	u2 = v1 * (1 - ( 2 * (sin(B)**2)/(y+1) ) )
+
+	v2 = v1 * ( sin(2*B)  / ( y + 1) )
+
+	Cp = (4 / (y+1)) * (sin(B)**2)
+
+	return([V1,a,P2,p2,T2,y])
+
+####################################################
 	
 """---------------main-------------"""
 print(flow1)
