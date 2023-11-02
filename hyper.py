@@ -11,6 +11,8 @@ vel1 = [3360,0,0]
 #props = [V (m/s),a (m/s) ,P (kPa) ,p (kg/m3) ,T (K), y]
 flow1 = [vel1,336,100,1.225,300, 1.4]
 
+
+#the exact equations for flow property changes across an oblique shock
 def oblique(prop,oblang): 
 	#this function applies the exact oblique shock equations to a flow and generates the new properties
 	Vx = prop[0][0] #reading Vx from V inside of flow1
@@ -38,7 +40,7 @@ def oblique(prop,oblang):
 	 
 	return [[u,v,w],a,P2,p2,T2,y]
 
-
+#the equations for flow property changes across an oblique shock at the hypersonic limit
 def oblique_limit(x,y):
 #this function takes a list as an argument and adds 5 to the 1st element of that list
 	v1 = x[0][0] #reading V1 from V inside of flow1
