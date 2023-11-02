@@ -39,7 +39,7 @@ def oblique(prop,oblang):
 	return [[u,v,w],a,P2,p2,T2,y]
 
 
-def oblique_third(a,y):
+def oblique_limit(a,y):
 #this function takes a list as an argument and adds 5 to the 1st element of that list
 	v1 = prop[0][0] #reading V1 from V inside of flow1
 	a = prop[1]
@@ -76,7 +76,7 @@ print("exact: ")
 flow2_ex = oblique(flow1,10)
 print(flow2_ex)
 print("at limit: ")
-flow2_lim = oblique(flow1,10)
+flow2_lim = oblique_limit(flow1,10)
 print(flow2_lim)
 
 
