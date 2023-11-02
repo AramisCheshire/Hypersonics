@@ -5,11 +5,11 @@ print("A program to calculate flowfields for hypersonic flows")
 print("Start with property change across an oblique shock")
 print("starting with default flow properties")
 
-#props = [V (m/s), a (m/s) ,P (kPa) ,p (kg/m3) ,T (K), y]
-flow1 = [3360,336,100,1.225,300, 1.4]
+#properties = [V (m/s), a (m/s) ,P (kPa) ,p (kg/m3) ,T (K), y]
+flow1 = [3360,336,100,1.225,300, 1.4] #this is an example array of some hypersonic flow at M=10
 
 
-def oblique(prop,oblang):
+def oblique(prop,oblang): #this function applies the exact oblique shock equations to a flow and generates the new properties
 	M1 = prop[0]/prop[1]
 	a = prop[1]
 	V1 = prop[0]
