@@ -1,6 +1,6 @@
-from hyper_git import oblique
-from hyper_git import oblique_limit
-from hyper_git import ThetaBeta
+from hyper import oblique
+from hyper import oblique_limit
+from hyper import ThetaBeta
 
 #velocity vector = [ Vx, Vy, Vz]
 vel1 = [3360,0,0]
