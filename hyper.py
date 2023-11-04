@@ -51,7 +51,10 @@ def oblique(prop,oblang):
 	
 	w2 = 0 #in this case the function only considers 2 dimensional flow so w is 0, but we will keep the input format consistent with 3D flow
 
-	 
+
+
+	"""###############
+     	when the flow has not yet entered any shock waves (called far-field flow, such as flow1 in the functiontest.py script we use big letter notiation (Vx,Vy,Vz) to represent the velocity in all 3 directions. After flow experiences shock we switch to "element notation" using small letters u,v,w which represent the same 3 directions. This is to keep things consistent with textbook notation""" 
 	return [[u2,v2,w2],a,P2,p2,T2,y]
 
 #the equations for flow property changes across an oblique shock at the hypersonic limit
@@ -81,6 +84,10 @@ def oblique_limit(x,obl):
 
 	Cp = (4 / (y+1)) * (sin(B)**2)
 
+
+
+	"""###############
+     	when the flow has not yet entered any shock waves (called far-field flow, such as flow1 in the functiontest.py script we use big letter notiation (Vx,Vy,Vz) to represent the velocity in all 3 directions. After flow experiences shock we switch to "element notation" using small letters u,v,w which represent the same 3 directions. This is to keep things consistent with textbook notation""" 
 	return [[u,v,w],a,P2,p2,T2,y]
 
 	
