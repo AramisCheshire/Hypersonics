@@ -1,4 +1,4 @@
-#this file is for testing all of the functions in hyper_git
+#this file is for testing all of the functions in hyper.py
 from hyper import oblique
 from hyper import oblique_limit
 from hyper import ThetaBeta
