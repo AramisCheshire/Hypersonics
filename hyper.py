@@ -2,14 +2,10 @@ import math
 from math import sin
 from math import cos
 from math import pi
-print("A program to calculate flowfields for hypersonic flows")
-print("Start with property change across an oblique shock")
-print("starting with default flow properties")
+from math import radians
+from math import tan
+from math import atan
 
-#velocity vector = [ Vx, Vy, Vz]
-vel1 = [3360,0,0]
-#props = [V (m/s),a (m/s) ,P (kPa) ,p (kg/m3) ,T (K), y]
-flow1 = [vel1,336,100,1.225,300, 1.4]
 
 
 
@@ -55,10 +51,7 @@ def oblique(prop,oblang):
 	
 	w2 = 0 #in this case the function only considers 2 dimensional flow so w is 0, but we will keep the input format consistent with 3D flow
 
-	
- 	"""###############
- 	when the flow has not yet entered any shock waves (called far-field flow, such as flow1 in the functiontest.py script we use big letter notiation (Vx,Vy,Vz) to represent the velocity in all 3 directions. After flow experiences shock we switch to "element notation" using small letters u,v,w which represent the same 3 directions. This is to keep things consistent with textbook notation""" 
-	##################
+	 
 	return [[u2,v2,w2],a,P2,p2,T2,y]
 
 #the equations for flow property changes across an oblique shock at the hypersonic limit
@@ -88,37 +81,16 @@ def oblique_limit(x,obl):
 
 	Cp = (4 / (y+1)) * (sin(B)**2)
 
-
- 	"""###############
- 	when the flow has not yet entered any shock waves (called far-field flow, such as flow1 in the functiontest.py script we use big letter notiation (Vx,Vy,Vz) to represent the velocity in all 3 directions. After flow experiences shock we switch to "element notation" using small letters u,v,w which represent the same 3 directions. This is to keep things consistent with textbook notation""" 
-	##################
-	
 	return [[u,v,w],a,P2,p2,T2,y]
 
 	
-
-####################################################
 	
-"""---------------main-------------"""
-print("original: ")
-print(flow1)
-print("exact: ")
-flow2_ex = oblique(flow1,10)
-print(flow2_ex)
-print("at limit: ")
-flow2_lim = oblique_limit(flow1,10)
-print(flow2_lim)
+def ThetaBeta(M1,Bdeg,y):
+	B = radians(Bdeg)
+	num = ((M1**2)*(sin(B)**2))-1
+	c2b = cos(2*B)
+	den = 2 + (M1**2)*(y+c2b)
+	g = 2*(num/den)*(1/tan(B))
+	theta = atan(g)*180/pi
+	return theta 
 
-
-#some math checks - delete later
-#flow1 = [vel1,336,100,1.225,300, 1.4]
-
-R1 = flow1[2]*1000/(flow1[3]*flow1[4])
-
-R2 = flow2_ex[2]*1000/(flow2_ex[3]*flow2_ex[4])
-print(R1)
-print(R2)
-
-
-R4 = flow2_lim[2]*1000/(flow2_lim[3]*flow2_lim[4])
-print(R4)
