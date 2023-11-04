@@ -1,7 +1,7 @@
 #this file is for testing all of the functions in hyper_git
-from hyper_git import oblique
-from hyper_git import oblique_limit
-from hyper_git import ThetaBeta
+from hyper import oblique
+from hyper import oblique_limit
+from hyper import ThetaBeta
 
 """---------------main-------------"""
 
