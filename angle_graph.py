@@ -17,4 +17,4 @@ for i in range(1,180):
 		theta = ThetaBeta(3,k,1.4)
 		thetas.append(theta)
 
-#now need to plot thetas and betas
+#now need to plot thetas on x-axis and betas on y-axis
