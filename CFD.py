@@ -66,7 +66,16 @@ def displaymatrixsymbols(mtx):
 			sstr = sstr + str
 		print(sstr)	
         
+#add boundary conditions
+def timeboundary(row,value,Mtx,domaindictionary):
+    for rowi in range(0,2):
+        Mtx[row][rowi] = value
         
+        dictionaryitem = [row,rowi]
+        domaindictionary.append(dictionaryitem) 
+    return Mtx
+    
+    return domaindictionary
         
         
 #initialising only
@@ -82,25 +91,28 @@ yl = len(Result[0])
 
 #displaymatrix(Result)
 
-for i in range(0,xl):
 
-	for j in range(0,yl):
-
-		#Result[i][j] = i**j
-		k = k +1
 	
 	
-#set boundary condition on a particular row (time-based)
+
 
 #set boundary condition on a patricular coloumn (x-based)
 
 #set specific individual points
-Result[0][0] = 100
+#Result[0][0] = 100
+dmn = []
+#set boundary condition that will stay constant 
+for rowi in range(0,len(Result)):
+    if 5*rowi >= len(Result):
+        print("oops")
+    else:
+        timeboundary(5*rowi,100,Result,dmn)
+    
+print(dmn)
 
-for rowi in range(0,len(Result[0])):
-	Result[0][rowi] = 100
-for rowi in range(0,len(Result[0])):
-	Result[2][rowi] = 100
+    
+    
+    
 # Result[3][0] = 100
 # Result[11][0] = 100
 # Result[5][0] = 100
@@ -121,9 +133,9 @@ Endtime = len(Result[0])
 Endwall = len(Result)
 
 #Endtime = 9
-
+displaymatrix(Result)
 start_calc = time.time()
-
+print(dmn)
 for timestep in range(1,Endtime):
     #need to calculate the next generation of T values
     for xitem in range(1,Endwall-1): 
@@ -132,8 +144,12 @@ for timestep in range(1,Endtime):
         Tp1 = Result[xitem+1][timestep-1]
         d2Tdx2 = central2nd(Tm1,To,Tp1,dx)
         dTdt = a*d2Tdx2 
-        T = To + dTdt*dT
-        Result[xitem][timestep] = T
+        if [xitem,timestep] in dmn:
+            T = 50
+        else:
+        
+            T = To + dTdt*dT
+        Result[xitem][timestep] = T*0.99
     #by the time we get here, xitem is at 8
     u1 = Result[Endwall-1][timestep-1] #wall value
     u2 = Result[Endwall-2][timestep-1]
@@ -142,14 +158,15 @@ for timestep in range(1,Endtime):
     d2Tdx2 = wall3pt1st(u1,u2,u3,u4,dx)
     dTdt = a*d2Tdx2
     T = To + dTdt*dT
-    Result[Endwall-1][timestep] = T
+    Result[Endwall-1][timestep] = T*0.99
 
 #displaymatrix(Result)
 
 #print(k)
 displaymatrix(Result)
+displaymatrixsymbols(Result)
 #print("xitem: %5i timestep: %5i To: %5i T-1: %5i T+1: %5i d2Tdx2: %5i dTdt: %5i T: %5i"%(xitem, timestep, To,Tm1,Tp1,d2Tdx2,dTdt,T))
-for item in range(0,Endwall-1):
-    print(Result[item][Endtime-1])
-calctime = time.time() - start_calc
-print("calculation time: %5fs"%calctime)
+# for item in range(0,Endwall-1):
+    # print(Result[item][Endtime-1])
+# calctime = time.time() - start_calc
+# print("calculation time: %5fs"%calctime)
