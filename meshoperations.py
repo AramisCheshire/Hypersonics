@@ -14,7 +14,7 @@ def displaymeshnumbers(mesh,NumX,NumY,property):
     ss = ""
     k = 0
     for item in range(0,len(mesh)):
-        ss = ss + "%i"%(mesh[item][property])
+        ss = ss + "%5.1f"%(mesh[item][property])
         k = k +1
         if k == NumX:
            
@@ -38,7 +38,7 @@ def create2Dmesh(NumX,NumY):
     mesh = []
     for i in range(0,NumX*NumY):
         #prop can be loaded from a settings file or a dictionary variable
-        prop = [0,0,0,1.225,100,292,1.4]
+        prop = [0,0,0,1.225,100000,292,1.4]
         mesh.append(prop)
     
     return mesh

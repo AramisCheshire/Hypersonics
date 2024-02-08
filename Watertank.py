@@ -2,7 +2,7 @@
 
 import math
 from meshoperations import displaymeshnumbers, displaymeshsymbols, Elems, create2Dmesh, create2DmeshEmpty, create2DwallEmpty
-
+from methods import Continuity2D, XMomentum2D, YMomentum2D, Continuity2D_secondorder, Balls2theWalls
 #eg example dictionary
 #global fluids = dictionary{"water1":[9,99,999,9999,99999]}
 
@@ -16,81 +16,9 @@ zdim = 0.4
 #mesh granularity- needs to adapt to desired dx
 
 dx = 0.01 #ie 1cm
-dt = 0.001 #seconds
+dt = 0.00001 #seconds
 
-# def displaymeshnumbers(mesh,NumX,NumY,property):
-    # ss = ""
-    # k = 0
-    # for item in range(0,len(mesh)):
-        # ss = ss + "%i"%(mesh[item][property])
-        # k = k +1
-        # if k == NumX:
-           
-            # print(ss)
-            # ss = ""
-            # k = 0
-            
-# def displaymeshsymbols(mesh,NumX,NumY):
-    # ss = ""
-    # k = 0
-    # for item in range(0,len(mesh)):
-        # ss = ss + "%s"%(mesh[item])
-        # k = k +1
-        # if k == NumX:
-           
-            # print(ss)
-            # ss = ""
-            # k = 0
-        
- 
-# def Elems(x,y,dx):
-    # NumX = math.floor(x/dx) + 1
-    # NumY = math.floor(y/dx) + 1
-    
-    # return [NumX,NumY]
-    
-# def create2Dmesh(NumX,NumY):
-
-
-    # #now, create a multi-D array where the position of the element reveals whether its x or y based
-    # #every NumX elements = one y value, repeat NumY times
-
-    # mesh = []
-    # for i in range(0,NumX*NumY):
-        # #prop can be loaded from a settings file or a dictionary variable
-        # prop = [0,0,0,1.225,100,292,1.4]
-        # mesh.append(prop)
-    
-    # return mesh
- 
-
-# def create2DmeshEmpty(NumX,NumY):
-
-
-# #now, create a multi-D array where the position of the element reveals whether its x or y based
-# #every NumX elements = one y value, repeat NumY times
-
-    # mesh = []
-    # for i in range(0,NumX*NumY):
-        # #prop can be loaded from a settings file or a dictionary variable
-        # mesh.append(0)
-
-    # return mesh      
-    
-    
-    
-# def create2DwallEmpty(NumX,NumY):
-
-
-# #now, create a multi-D array where the position of the element reveals whether its x or y based
-# #every NumX elements = one y value, repeat NumY times
-
-    # mesh = []
-    # for i in range(0,NumX*NumY):
-        # #prop can be loaded from a settings file or a dictionary variable
-        # mesh.append(".")
-
-    # return mesh      
+   
 
 
 
@@ -315,11 +243,13 @@ for i in range(0,NumY):
 #add initial conditions:
 for i in range(2,7):
     walls[2*NumX+i] = "u"
-    mesh[2*NumX+i][0] = 1
+    mesh[2*NumX+i][3] = 1
     
     walls[3*NumX+i] = "u"
-    mesh[3*NumX+i][0] = 1
+    mesh[3*NumX+i][3] = 1
 
+
+mesh[200][0] = 1
   
 #print(walls)
 
@@ -328,10 +258,74 @@ displaymeshsymbols(walls,NumX,NumY)
 print("\n\n")
 
 displaymeshnumbers(mesh,NumX,NumY,0)
+print("\n\n")
 #print(mesh)
-nextmesh = create2Dmesh(NumX,NumY)
+#nextmesh = create2Dmesh(NumX,NumY)
 
-for element in range(0,len(nextmesh)):
-    nextmesh[element] = continuity2D(element,mesh,walls,NumX,NumY,dx,dt)
+nextmesh = mesh[:]
+#print(nextmesh)
+
+
+#initialise gas constant
+TRa = mesh[0][4]/mesh[0][3]
+
+for timestep in range(0,1):
+    #at each timestep, update the matrix
     
-displaymeshnumbers(nextmesh,NumX,NumY,0)
+    
+    for element in range(0,len(mesh)):
+        
+        
+        
+        
+        #wall condition only applies to velocities
+        
+        dpdt = Continuity2D(element,mesh,NumX,NumY,dx)
+        dp2dt = Continuity2D_secondorder(element,mesh,NumX,NumY,dx)
+        
+        nextmesh[element][3] = mesh[element][3] + dpdt*dt + dp2dt*(dt**2)/2
+        
+        
+        
+        #check for wall and treat separately - check for left/right first for u and top/bottom for v
+        
+        
+        if element%NumX == 0 or (element+1)%NumX == 0:
+            #left/right wall so u is zero
+            nextmesh[element][0] = 0
+        else: 
+            
+            dudt = XMomentum2D(element,mesh,NumX,NumY,dx)
+        
+        
+            nextmesh[element][0] = mesh[element][0] + dudt*dt
+        
+        if (element < NumX) or (element > (NumX*NumY - NumX - 1)):
+            #top or bottom so v is zero
+            nextmesh[element][1] = 0
+
+        else:
+          
+        
+            dvdt = YMomentum2D(element,mesh,NumX,NumY,dx)
+        
+            nextmesh[element][1] = mesh[element][1] + dvdt*dt
+        #print(Co)
+        
+        nextmesh[element][4] = mesh[element][3]*TRa
+        
+        
+    # fr = open("base.csv","a")
+    # fr.write(nextmesh)
+    # fr.close()
+    mesh=nextmesh[:]
+    print(timestep)
+    displaymeshnumbers(mesh,NumX,NumY,0)
+   #print(mesh[338])
+    
+    
+    
+#displaymeshnumbers(mesh,NumX,NumY,0)
+
+
+Balls2theWalls(10,mesh,NumX,NumY,dx)
