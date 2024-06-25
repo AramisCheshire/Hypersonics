@@ -17,6 +17,13 @@ def dds(vp1,vm1,dx):
     ddx = (vp1-vm1)/(2*dx)
     return ddx
 
+def fwd_diff(vp1,v1,dx):
+	ddx = (vp1-v1)/(2*dx)
+	return ddx
+	
+def bck_diff(v1,vm1,dx):
+	ddx=(v1-vm1)/(2*dx)
+	return ddx
 
 def dds2(vp1,v0,vm1,dx):
     ddx = (vp1+vm1-2*v0)/(2*(dx**2))
@@ -980,6 +987,7 @@ def Continuity2D_secondorder(e,mesh,NumX,NumY,dx):
     dudxdt = -1*(term1 + term2 + term3)     
     
     
+
  
 
 
@@ -1511,3 +1519,4 @@ def maccormack(s):
     
 
     return 0
+
