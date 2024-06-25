@@ -1501,22 +1501,74 @@ def maccormack_interior(e,mesh,NumX,NumY,dx):
 
     #d/dy - fwd difference 
     for v in (0,1,3,4):
-        space.append(dds(u01[v],u00[v],dx))
-
+        space.append(dds(u01[vi
     
 
 
-def maccormack(s):
-    # s = [u,v,p,P,dudx,dvdx,dpdx,dPdx,dudy,dvdy,dpdy,dPdy,d2udt2...]
+def firstorder_governing_2D(s):
+    RT = s[3]/s[2]
+    Q=4
+
+    dpdt = -1*(s[2]*s[0+Q] + s[0]*s[2+Q] + s[2]*s[1+2*Q] + s[1]*s[2+2*Q])
+    
+    dudt = -1*(s[0]*s[0+Q] + s[1]*s[0+2*Q] + (1/s[2])*s[3+Q])
+    
+    dvdt = -1*(s[0]*s[1+Q] + s[1]*s[1+2*Q] + (1/s[2])*s[3+2*Q])
+    
+    dPdt = dpdt*RT
+    
+    ders=[dpdt,dudt,dvdt,dPdt]
+    return ders
+
+def maccormack_interior_predictor(e,mesh,NumX,NumY,dx,dt):
+
+    #need to calculate predicted variables for entire grid using fwd difference
+
+    #assume only interiors
+    
+    #6 points around element e
+    u00 = mesh[e][:]
+    u10 = mesh[e+1][:]
+    um10 = mesh[e-1][:]
+    u01 = mesh[e+NumX][:]
+    u0m1 = mesh[e-NumX][:]
+    
+    
+    #use these points to calculate 1st order derivatives
+    
+    s = []
+
+    #no derivative
+    for v in (0,1,3,4):
+        s.append(u00[v])
+
+    for v in (0,1,3,4):
+        s.append(dds(u10[v],u00[v]))
+
+    #d/dy 
+    for v in (0,1,3,4):
+        s.append(dds(u01[v],u00[v]))
+
+    #now i have s=[u,v,p,P,ux,vx,px,Px,uy,vy,py,Py] = 12 elements
+
+
+
+
+
     # RT from that ideal gas eqn. s[3] = Pressure, s[2] = density p
     RT = s[3]/s[2]
     Q=4 #skip down a row in space, i.e. from [0..3] to [4..7]
 
     #first order eqns:
 
-    dpdt = -1*(s[2]*s[0+Q] + s[0]*s[2+Q] + s[2]*s[1+2*Q] + s[1]*s[2+2*Q])
+    ders = firstorder_governing_2D(s)
 
+    #now i can predict values of next timestep:
+    u00t = u00[:]
+    u00t[0]= u00[0] + dt*ders[1]
     
+    
+
 
     return 0
 
