@@ -3,12 +3,8 @@
 import math
 from meshoperations import displaymeshnumbers, displaymeshsymbols, Elems, create2Dmesh, create2DmeshEmpty, create2DwallEmpty
 from methods import Continuity2D, XMomentum2D, YMomentum2D, Continuity2D_secondorder, Balls2theWalls, wallsfnc, corners, governing_2d 
-#from viz import createimage
-#eg example dictionary
-#global fluids = dictionary{"water1":[9,99,999,9999,99999]}
 
-#create the mesh- take user input dimensions
-
+#create the mesh- user should change these values according to need
 #dimensions of desired box (m):
 xdim = 2
 ydim = 2
@@ -16,7 +12,7 @@ zdim = 0.4
 
 #mesh granularity- needs to adapt to desired dx
 
-dx = 0.1 #ie 1cm
+dx = 0.01 #metres
 dt = 0.00001 #seconds
 
    
@@ -28,28 +24,24 @@ dt = 0.00001 #seconds
 
 
 
-Elem = Elems(xdim,ydim,dx)
+Elem = Elems(xdim,ydim,dx) #work out the number of X and Y elements based on the above set of inputs
 NumX = Elem[0]
 NumY = Elem[1]
 
 print("\n")
-mesh = create2Dmesh(NumX,NumY)
+mesh = create2Dmesh(NumX,NumY) #create empty multi-dimensional array ('mesh') from that number of elements
 
-#change element at (0,3)
+#how to change element, say at (0,3)
 #mesh[3*21][0] = 1000001
 
 #print(mesh)
 
 
 
-timemesh = []
-
-#need a mesh for the walls
-
+#create a mesh for the walls purely for demonstrating where boundary and initial conditions are
 walls = create2DwallEmpty(NumX,NumY)
 
-#add the floor at elems 0 - NumX
- 
+#boundary conditions:
 #rows
 for i in range(0,NumX):
     walls[i] = "w"
@@ -60,7 +52,7 @@ for i in range(0,NumY):
     walls[i*NumX] = "w"
     walls[i*NumX + NumX-1] = "w"
     
-#add initial conditions:
+#add some select initial conditions to both the wall mesh and the actual mesh:
 for i in range(2,7):
     walls[2*NumX+i] = "u"
     mesh[2*NumX+i][4] = 150000
@@ -69,33 +61,18 @@ for i in range(2,7):
     mesh[3*NumX+i][4] = 150000
 
 
-#mesh[200][0] = 1
-  
-#print(walls)
-
-
 displaymeshsymbols(walls,NumX,NumY)
 print("\n\n")
 
-#displaymeshnumbers(mesh,NumX,NumY,4)
-#print("\n\n")
-#print(mesh)
-#nextmesh = create2Dmesh(NumX,NumY)
-
-nextmesh = mesh[:]
-#print(nextmesh)
-
+nextmesh = mesh[:] #copy the contents of the mesh (with initial conditions) into another mesh, to be used in the updating process
 
 #initialise gas constant
 TRa = mesh[0][4]/mesh[0][3]
 
 
-#print(NumX)
-#print(NumY)
-
 displaymeshnumbers(mesh,NumX,NumY,4)
 
-ders = create2DmeshEmpty(NumX,NumY)
+ders = create2DmeshEmpty(NumX,NumY) #create new empty mesh with the same dimensions just for the derivatives 
 
 for timestep in range(0,10):
     #at each timestep, update the matrix
@@ -108,11 +85,12 @@ for timestep in range(0,10):
     for element in range(0,len(mesh)):
         u_coeff = 1
         v_coeff = 1
-        #print(element)
+       
         #first check for corners and walls. apply appropriate space generator. then use space function.
         #for corners and walls, boundary conditions should ignore some of the derivative values.
         
-        
+        #space is a smaller array just for storing derivatives 
+       
         if element == 0 or element == (NumX*NumY -1) or element == (NumX-1) or element == (NumX*NumY - NumX):
             #either of 4 corners
             space = corners(element,mesh,NumX,NumY,dx)
@@ -122,11 +100,12 @@ for timestep in range(0,10):
             
     
         else:
+      
             space = Balls2theWalls(element,mesh,NumX,NumY,dx)
         
         
         
-        #print(space)
+      
         #space has 3 diff ways to be generated but the result will be used in the time-der calculator:
         
         ttd = governing_2d(space)
