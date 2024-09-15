@@ -226,14 +226,14 @@ def wallsfnc(e,mesh,NumX,NumY,dx):
     
     
     space = []
-    
-    
-    c = 10000
-    if w == "l" or "r":
+
+    c = 99999999
+    if w == "l" or w == "r":
         c = 1
-    elif w == "t" or "b":
+    elif w == "t" or w == "b":
         c = 0
     
+
     for v in (0,1,3,4):
         space.append(u00[v])
     #d/dx - for left and right, use wall func, for top/bottom, use normal dds
@@ -268,8 +268,6 @@ def Balls2theWalls(e,mesh,NumX,NumY,dx):
     
     #corners
     
-    
-    
     #no walls:
     
     u00 = mesh[e][:]
@@ -283,8 +281,6 @@ def Balls2theWalls(e,mesh,NumX,NumY,dx):
     um1m1 = mesh[e-NumX-1][:]
     
     #now we want to create 24 space derivatives
-    
-    
     space = []
     #u
     for v in (0,1,3,4):
@@ -304,196 +300,107 @@ def Balls2theWalls(e,mesh,NumX,NumY,dx):
     #d2/dxdy
     for v in (0,1,3,4):
         space.append(ddsm(u11[v],u1m1[v],um11[v],um1m1[v],dx))
-    
+    return space
 
+def interior_fwd(e,mesh,NumX,NumY,dx):
+    #4 parameters: u,v,p,P
+    #6 space derivatives for each - store in a 24-item array
+    #9 mesh points are required - meaning, 36 different values
+    #segregate walls and corners
     
-
     
+    #start by generating values
     
+    #corners
     
+    #no walls:
     
+    u00 = mesh[e][:]
+    u10 = mesh[e+1][:]
+    um10 = mesh[e-1][:]
+    u01 = mesh[e+NumX][:]
+    u0m1 = mesh[e-NumX][:]
+    u11 = mesh[e+NumX+1][:]
+    u1m1 = mesh[e+1-NumX][:]
+    um11 = mesh[e-1+NumX][:]
+    um1m1 = mesh[e-NumX-1][:]
+    
+    #now we want to create 24 space derivatives
+    space = []
+    #u
+    for v in (0,1,3,4):
+        space.append(u00[v])
+    #d/dx
+    for v in (0,1,3,4):
+        space.append(dds(u10[v],u00[v],dx))
+    #d/dy
+    for v in (0,1,3,4):
+        space.append(dds(u01[v],u00[v],dx)) 
+    #d2/dx2
+    for v in (0,1,3,4):
+        space.append(0)        
+	#space.append(dds2(u10[v],u00[v],um10[v],dx))
+    #d2/dy2
+    for v in (0,1,3,4):
+        space.append(0)        
+	#space.append(dds2(u01[v],u00[v],u0m1[v],dx))   
+    #d2/dxdy
+    for v in (0,1,3,4):
+        space.append(0)        
+	#space.append(ddsm(u11[v],u1m1[v],um11[v],um1m1[v],dx))
     return space
     
     
-def governing_2d(s):
-    RT = s[3]/s[2]
-
-    #need to return [du/dt, d2u/dt2, dv/dt, d2v/dt2, dp/dt, d2p/dt2, dP/dt, d2P/dt2]
-    Q = 4 #four quantities - u,v,p,P
-    
-    #first order:
-    dpdt = -1*(s[2]*s[0+Q] + s[0]*s[2+Q] + s[2]*s[1+2*Q] + s[1]*s[2+2*Q])
-    
-    dudt = -1*(s[0]*s[0+Q] + s[1]*s[0+2*Q] + (1/s[2])*s[3+Q])
-    
-    dvdt = -1*(s[0]*s[1+Q] + s[1]*s[1+2*Q] + (1/s[2])*s[3+2*Q])
-    
-    dPdt = dpdt*RT
-    
-    
-    
-    #space mixes:
-    
-    #---------------------------------------dp/dt *d/dx and d/dy
-
-    
-    """
-    d2p/dtdx:
-    term1: dp/dx * du/dx + p*d2u/dx2 
-    term2: du/dx * dp/dx + u * d2p/dx2
-    term3: dp/dx * dv/dy + p * d2v/dxdy 
-    term4: dv/dx*dp/dy + v*d2p/dxdy
-    """
-    
-    term1 = s[2+Q]*s[0+Q] + s[2]*s[0+3*Q]
-    term2 = s[0+Q]*s[2+Q] + s[0]*s[2+3*Q]
-    term3 = s[2+Q]*s[1+2*Q] + s[2]*s[1+5*Q]
-    term4 = s[1+Q]*s[2+2*Q] + s[1]*s[2+5*Q]
-    
-    dpdxdt = -1*(term1 + term2 + term3+ term4)
-    
-    """
-    d2p/dtdy:
-    term1: dp/dy * du/dx + p*d2u/dxdy 
-    term2: du/dy * dp/dx + u * d2p/dxdy
-    term3: dp/dy * dv/dy + p * d2v/dy2 
-    term4: dv/dy*dp/dy + v*d2p/dy2
-    """
-    
-    term1 = s[2+2*Q]*s[0+Q] + s[2]*s[0+5*Q]
-    term2 = s[0+2*Q]*s[2+Q] + s[0]*s[2+5*Q]
-    term3 = s[2+2*Q]*s[1+2*Q] + s[2]*s[1+4*Q]
-    term4 = s[1+2*Q]*s[2+2*Q] + s[1]*s[2+4*Q]
-    
-    dpdydt = -1*(term1 + term2 + term3+ term4)  
-    
-    #---------------------------------------du/dt *d/dx and d/dy
-
-    """
-    d2u/dtdx:
-    term1: du/dx * du/dx + u*d2u/dx2 
-    term2: dv/dx * du/dy + v * d2u/dxdy
-    term3: dp/dx * (-p^(-2)) * dP/dx + (1/p) * d2P/dx2 
-    """
-    
-    term1 = s[0+Q]*s[0+Q] + s[0]*s[0+3*Q]
-    term2 = s[1+Q]*s[0+2*Q] + s[1]*s[0+5*Q]
-    term3 = s[2+Q]*s[3+Q]*(-1)*(1/(s[2]**2)) + (1/s[2])*s[3+3*Q]
-    dudxdt = -1*(term1 + term2 + term3)     
-    
-    
- 
-
-
-    """
-    d2u/dtdy:
-    term1: du/dy * du/dx + u*d2u/dxdy 
-    term2: dv/dy * du/dy + v * d2u/dy2
-    term3: dp/dy * (-p^(-2)) * dP/dx + (1/p) * d2P/dxdy    
-    """
-    
-    term1 = s[0+2*Q]*s[0+Q] + s[0]*s[0+5*Q]
-    term2 = s[1+2*Q]*s[0+2*Q] + s[1]*s[0+4*Q]
-    term3 = s[2+2*Q]*s[3+Q]*(-1)*(1/(s[2]**2)) + (1/s[2])*s[3+5*Q]
-    dudydt = -1*(term1 + term2 + term3)  
-    
-    
-    
-    #---------------------------------------dv/dt *d/dx and d/dy
-    
-    """
-    d2v/dtdx:
-    term1: du/dx * dv/dx + u*d2v/dx2 
-    term2: dv/dx * dv/dy + v * d2v/dxdy
-    term3: dp/dx * (-p^(-2)) * dP/dy + (1/p) * d2P/dxdy 
-    """
-    
-    term1 = s[0+Q]*s[1+Q] + s[0]*s[1+3*Q]
-    term2 = s[1+Q]*s[1+2*Q] + s[1]*s[1+5*Q]
-    term3 = s[2+Q]*s[3+2*Q]*(-1)*(1/(s[2]**2)) + (1/s[2])*s[3+5*Q]
-    dvdxdt = -1*(term1 + term2 + term3)    
-    
-    
-    
-    """
-    d2v/dtdy:
-    term1: du/dy * dv/dx + u*d2v/dxdy 
-    term2: dv/dy * dv/dy + v * d2v/dy2
-    term3: dp/dy * (-p^(-2)) * dP/dy + (1/p) * d2P/dy2    
-    """
-    
-    term1 = s[0+2*Q]*s[1+Q] + s[0]*s[1+5*Q]
-    term2 = s[1+2*Q]*s[1+2*Q] + s[1]*s[1+4*Q]
-    term3 = s[2+2*Q]*s[3+2*Q]*(-1)*(1/(s[2]**2)) + (1/s[2])*s[3+4*Q]
-    dvdydt = -1*(term1 + term2 + term3)     
-    
-    
-    
-    
-    
-    #---------------------------------------now I have enough info to calc second order time derivs
-
-   
-    """
-    d2p/dt2 = 
-    term1: dp/dt * du/dx + p* du2/dxdt 
-    term2: du/dt * dp/dx + u*d2p/dxdt 
-    term3: dp/dt * dv/dy + p*dv2/dydt
-    term4: dv/dt * dp/dy + v*d2p/dydt
-    """
-    
-    term1 = dpdt*s[0+Q] + s[2]*dudxdt
-    term2 = dudt*s[2+Q] + s[0]*dpdxdt
-    term3 = dpdt*s[1+2*Q] + s[2]*dvdydt
-    term4 = dvdt*s[2+2*Q] + s[1]*dpdydt
-    
-    dp2dt2 = term1 + term2 + term3 +term4
-    
-    
-    
-    """
-    d2u/dt2 = 
-    term1: du/dt * du/dx + u* du2/dxdt 
-    term2: dv/dt * du/dy + v*d2u/dydt 
-    term3: dp/dt * dP/dx *(-p**-2)  + (1/p)*dpdxdt*RT
-    
-    """
-    
-    term1 = dudt*s[0+Q] + s[0]*dudxdt
-    term2 = dvdt*s[0+2*Q] + s[1]*dudydt
-    term3 = dpdt*s[3+Q]*(-1)*(1/(s[2]**2)) + (1/s[2])*dpdxdt*RT
-    
-    du2dt2 = term1 + term2 + term3 
-    
-    
-    
-    
-    """
-    d2v/dt2 = 
-    term1: du/dt * dv/dx + u* dv2/dxdt 
-    term2: dv/dt * dv/dy + v*d2v/dydt 
-    term3: dp/dt * dP/dy *(-p**-2)  + (1/p)*dpdydt*RT
-    
-    """
-    
-    term1 = dudt*s[1+Q] + s[0]*dvdxdt
-    term2 = dvdt*s[1+2*Q] + s[1]*dvdydt
-    term3 = dpdt*s[3+2*Q]*(-1)*(1/(s[2]**2)) + (1/s[2])*dpdydt*RT
-    
-    dv2dt2 = term1 + term2 + term3     
-    
-    
-    dP2dt2 = dp2dt2*RT
-    
-    dudx = s[4]
- #   print("in governing_2d")
 
 
 
-   # h = [dudt,s[0],s[4],s[1],s[9],(1/s[2]),s[7]]
+def interior_bwd(e,mesh,NumX,NumY,dx):
+    #4 parameters: u,v,p,P
+    #6 space derivatives for each - store in a 24-item array
+    #9 mesh points are required - meaning, 36 different values
+    #segregate walls and corners
     
-   # print(h)
-    return [dudt,dvdt,dpdt,dPdt,du2dt2,dv2dt2,dp2dt2,dP2dt2] 
+    
+    #start by generating values
+    
+    #no corners
+    
+    #no walls:
+    
+    u00 = mesh[e][:]
+    u10 = mesh[e+1][:]
+    um10 = mesh[e-1][:]
+    u01 = mesh[e+NumX][:]
+    u0m1 = mesh[e-NumX][:]
+    u11 = mesh[e+NumX+1][:]
+    u1m1 = mesh[e+1-NumX][:]
+    um11 = mesh[e-1+NumX][:]
+    um1m1 = mesh[e-NumX-1][:]
+    
+    #now we want to create 24 space derivatives
+    space = []
+    #u
+    for v in (0,1,3,4):
+        space.append(u00[v])
+    #d/dx
+    for v in (0,1,3,4):
+        space.append(dds(u00[v],um10[v],dx))
+    #d/dy
+    for v in (0,1,3,4):
+        space.append(dds(u00[v],u0m1[v],dx)) 
+    #d2/dx2
+    for v in (0,1,3,4):
+        space.append(0)        
+	#space.append(dds2(u10[v],u00[v],um10[v],dx))
+    #d2/dy2
+    for v in (0,1,3,4):
+        space.append(0)
+        #space.append(dds2(u01[v],u00[v],u0m1[v],dx))   
+    #d2/dxdy
+    for v in (0,1,3,4):
+        space.append(0)        
+	#space.append(ddsm(u11[v],u1m1[v],um11[v],um1m1[v],dx))
+    return space
 
 
 
